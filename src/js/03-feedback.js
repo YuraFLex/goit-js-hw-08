@@ -10,14 +10,12 @@ const formData = {};
 
 function onTextareaInput(e) {
   formData[e.target.name] = e.target.value;
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(formData));
   console.log(STORAGE_KEY);
 }
 
 function onFormSubmit(evt) {
   evt.preventDefault();
 
-  console.log("Send form:", JSON.parse(localStorage.getItem(STORAGE_KEY)));
   evt.currentTarget.reset();
   localStorage.removeItem(STORAGE_KEY);
 }
