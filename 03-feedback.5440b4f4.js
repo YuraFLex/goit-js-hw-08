@@ -507,30 +507,40 @@ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 var _lodashThrottle = require("lodash.throttle");
 var _lodashThrottleDefault = parcelHelpers.interopDefault(_lodashThrottle);
 const STORAGE_KEY = "feedback-form-state";
-const form = document.querySelector(".feedback-form");
-form.addEventListener("input", (0, _lodashThrottleDefault.default)(onTextareaInput, 500));
-form.addEventListener("submit", onFormSubmit);
-const formData = {};
-function onTextareaInput(e) {
-    formData[e.target.name] = e.target.value;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(formData));
-    console.log(STORAGE_KEY);
-}
-function onFormSubmit(evt) {
-    evt.preventDefault();
-    console.log("Send form:", JSON.parse(localStorage.getItem(STORAGE_KEY)));
-    evt.currentTarget.reset();
-    localStorage.removeItem(STORAGE_KEY);
-}
-(function formDataSaved() {
-    const data = JSON.parse(localStorage.getItem(STORAGE_KEY));
-    const email = document.querySelector(".feedback-form input");
-    const message = document.querySelector(".feedback-form textarea");
-    if (data) {
-        email.value = data.email;
-        message.value = data.message;
+const formRef = document.querySelector(".feedback-form");
+const inputRef = document.querySelector('input[name="email"]');
+const messageRef = document.querySelector('textarea[name="message"]');
+const currentFeedback = {};
+const FORM_STATE_KEY = "feedback-form-state";
+let submittedFeedback = null;
+formRef.addEventListener("input", (0, _lodashThrottleDefault.default)(onFormInput, 500));
+formRef.addEventListener("submit", onFormSubmit);
+function onFormInput(evt) {
+    const { name , value  } = evt.target;
+    if (name === inputRef.name) {
+        currentFeedback.email = value;
+        currentFeedback.message = messageRef.value;
     }
-})();
+    if (name === messageRef.name) {
+        currentFeedback.message = value;
+        currentFeedback.email = inputRef.value;
+    }
+    localStorage.setItem(FORM_STATE_KEY, JSON.stringify(currentFeedback));
+}
+try {
+    const { email , message  } = JSON.parse(localStorage.getItem(FORM_STATE_KEY));
+    inputRef.value = email;
+    messageRef.value = message;
+} catch (error) {}
+function onFormSubmit(e) {
+    e.preventDefault();
+    try {
+        submittedFeedback = JSON.parse(localStorage.getItem(FORM_STATE_KEY));
+        console.log(submittedFeedback);
+    } catch (error) {}
+    localStorage.removeItem(FORM_STATE_KEY);
+    e.currentTarget.reset();
+}
 
 },{"lodash.throttle":"bGJVT","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"bGJVT":[function(require,module,exports) {
 var global = arguments[3];
