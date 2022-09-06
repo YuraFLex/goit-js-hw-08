@@ -511,16 +511,12 @@ var _lodashThrottleDefault = parcelHelpers.interopDefault(_lodashThrottle);
 const STORAGE_KEY = "videoplayr-current-time";
 const inframe = document.querySelector("iframe");
 const player = new (0, _playerDefault.default)(inframe);
-player.on("timeupdate", (0, _lodashThrottleDefault.default)(timeUpDate, 1000));
-function timeUpDate() {
-    player.getCurrentTime().then((sec)=>{
-        console.log(sec);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(sec));
-    });
+function onPlay(data) {
+    console.log(data);
+    localStorage.setItem(STORAGE_KEY, data.seconds);
 }
-const timeToStart = JSON.parse(localStorage.getItem(STORAGE_KEY)) || 0;
-console.log(timeToStart);
-player.setCurrentTime(timeToStart);
+player.on("timeupdate", (0, _lodashThrottleDefault.default)(onPlay, 1000));
+player.setCurrentTime(Number(localStorage.getItem(STORAGE_KEY)));
 
 },{"@vimeo/player":"kmmUG","lodash.throttle":"bGJVT","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"kmmUG":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");

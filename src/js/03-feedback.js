@@ -2,30 +2,49 @@ import throttle from "lodash.throttle";
 
 const STORAGE_KEY = "feedback-form-state";
 
-const form = document.querySelector(".feedback-form");
-form.addEventListener("input", throttle(onTextareaInput, 500));
-form.addEventListener("submit", onFormSubmit);
+const formRef = document.querySelector(".feedback-form");
+const inputRef = document.querySelector('input[name="email"]');
+const messageRef = document.querySelector('textarea[name="message"]');
 
-const formData = {};
+const currentFeedback = {};
+const FORM_STATE_KEY = "feedback-form-state";
 
-function onTextareaInput(e) {
-  formData[e.target.name] = e.target.value;
-  console.log(STORAGE_KEY);
-}
+let submittedFeedback = null;
 
-function onFormSubmit(evt) {
-  evt.preventDefault();
+formRef.addEventListener("input", throttle(onFormInput, 500));
+formRef.addEventListener("submit", onFormSubmit);
 
-  evt.currentTarget.reset();
-  localStorage.removeItem(STORAGE_KEY);
-}
+function onFormInput(evt) {
+  const { name, value } = evt.target;
 
-(function formDataSaved() {
-  const data = JSON.parse(localStorage.getItem(STORAGE_KEY));
-  const email = document.querySelector(".feedback-form input");
-  const message = document.querySelector(".feedback-form textarea");
-  if (data) {
-    email.value = data.email;
-    message.value = data.message;
+  if (name === inputRef.name) {
+    currentFeedback.email = value;
+    currentFeedback.message = messageRef.value;
   }
-})();
+
+  if (name === messageRef.name) {
+    currentFeedback.message = value;
+    currentFeedback.email = inputRef.value;
+  }
+
+  localStorage.setItem(FORM_STATE_KEY, JSON.stringify(currentFeedback));
+}
+
+try {
+  const { email, message } = JSON.parse(localStorage.getItem(FORM_STATE_KEY));
+  inputRef.value = email;
+  messageRef.value = message;
+} catch (error) {}
+
+function onFormSubmit(e) {
+  e.preventDefault();
+
+  try {
+    submittedFeedback = JSON.parse(localStorage.getItem(FORM_STATE_KEY));
+    console.log(submittedFeedback);
+  } catch (error) {}
+
+  localStorage.removeItem(FORM_STATE_KEY);
+
+  e.currentTarget.reset();
+}
